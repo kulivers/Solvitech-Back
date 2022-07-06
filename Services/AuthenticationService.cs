@@ -39,18 +39,20 @@ namespace Solvintech.Services
             _jwtConfiguration = jwtConfiguration.Value;
         }
 
-        public async Task RegisterUser(UserForRegistrationDto userDto)
+        public async Task<string> RegisterUser(UserForRegistrationDto userDto)
         {
+            var token = GenerateToken(userDto.Email);
             var user = new User()
             {
                 Email = userDto.Email,
-                Token = GenerateToken(userDto.Email),
+                Token = token,
                 PasswordHash = ComputeSha256Hash(userDto.Password)
             };
             try
             {
                 //try catch to send my exception except internal
                 await _repository.Users.CreateUserAsync(user);
+                return token;
             }
             catch (SqlException)
             {
@@ -62,6 +64,13 @@ namespace Solvintech.Services
             }
         }
 
+
+        public async Task<string> GenerateNewUserToken(string email)
+        {
+            var newToken = GenerateToken(email);
+            await _repository.Users.UpdateUserTokenAsync(email, newToken);
+            return newToken;
+        }
 
         public async Task<string> GenerateNewUserToken(UserForAuthenticationDto userDto)
         {
@@ -116,7 +125,6 @@ namespace Solvintech.Services
         //creates an object of the JwtSecurityToken
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
             var tokenOptions = new JwtSecurityToken
             (
                 _jwtConfiguration.ValidIssuer,

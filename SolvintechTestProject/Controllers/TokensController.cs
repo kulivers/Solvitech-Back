@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PasswordManager.Entities.Shared;
@@ -16,6 +17,17 @@ namespace PasswordManager.Presentation.Controllers
             _service = service;
         }
 
+        [HttpGet("generate")]
+        [Authorize]
+        public async Task<IActionResult> GenerateNewToken()
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            return Ok(new
+            {
+                token = await _service.AuthenticationService.GenerateNewUserToken(userEmail)
+            });
+        }
+
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> GetToken([FromBody] UserForAuthenticationDto user)
@@ -25,10 +37,5 @@ namespace PasswordManager.Presentation.Controllers
                 return Unauthorized();
             return Ok(new { token = tokenDto });
         }
-
-        [HttpPost("generate")] //todo move to own controller
-        [Authorize]
-        public async Task<IActionResult> GenerateNewToken([FromBody] UserForAuthenticationDto user) =>
-            Ok(await _service.AuthenticationService.GenerateNewUserToken(user));
     }
 }

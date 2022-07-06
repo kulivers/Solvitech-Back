@@ -8,9 +8,10 @@ namespace Solvintech.Services.Contracts
 {
     public interface IAuthenticationService
     {
+        Task<string> GenerateNewUserToken(string email);
         Task<string> GenerateNewUserToken(UserForAuthenticationDto userDto);
         Task<string> GetUserTokenAsync(UserForAuthenticationDto userDto);
         Task<string> GetUserTokenAsync(string email, string password);
-        Task RegisterUser(UserForRegistrationDto userDto);
+        Task<string> RegisterUser(UserForRegistrationDto userDto);
     }
 }

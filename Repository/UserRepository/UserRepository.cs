@@ -29,6 +29,25 @@ namespace Solvintech.Repository
         public async Task<string> GetUserTokenAsync(UserForAuthenticationDto userDto) =>
             await GetUserTokenAsync(userDto.Email, userDto.Password);
 
+        public async Task UpdateUserTokenAsync(string email, string newToken)
+        {
+            User result;
+            try
+            {
+                result = await _repositoryContext.Users.SingleOrDefaultAsync(user =>
+                    user.Email == email);
+            }
+            catch
+            {
+                throw new Exception("More than one user found");
+            }
+
+            if (result == null) throw new UserNotFoundException(email);
+
+            result.Token = newToken;
+            await _repositoryContext.SaveChangesAsync();
+        }
+
         public async Task UpdateUserTokenAsync(string email, string passwordHash, string newToken)
         {
             User result;
@@ -38,12 +57,13 @@ namespace Solvintech.Repository
                     await _repositoryContext.Users.SingleOrDefaultAsync(user =>
                         user.Email == email && user.PasswordHash == passwordHash);
             }
-            catch 
+            catch
             {
                 throw new Exception("More than one user found");
             }
+
             if (result == null) throw new UserNotFoundException(email);
-            
+
             result.Token = newToken;
             await _repositoryContext.SaveChangesAsync();
         }

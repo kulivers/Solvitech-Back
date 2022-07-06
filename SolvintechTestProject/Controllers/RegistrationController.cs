@@ -16,8 +16,8 @@ namespace PasswordManager.Presentation.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto user)
         {
-            await _service.AuthenticationService.RegisterUser(user);
-            return Ok();
+            var userToken = await _service.AuthenticationService.RegisterUser(user);
+            return Ok(new { token = userToken });
         }
     }
 }

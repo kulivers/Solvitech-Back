@@ -8,6 +8,7 @@ namespace Solvintech.Contracts
     {
         Task CreateUserAsync(User user);
 
+        Task UpdateUserTokenAsync(string email, string newToken);
         Task UpdateUserTokenAsync(string email, string passwordHash, string newToken);
         Task<string> GetUserTokenAsync(UserForAuthenticationDto userDto);
         Task<string> GetUserTokenAsync(string email, string passwordHash);
