@@ -2,7 +2,7 @@ namespace Solvintech.Services.Contracts
 {
     public interface IServiceManager
     {
-        // IUserService UserService { get; }
+        IQuotationProxyService QuotationService { get; }
         IAuthenticationService AuthenticationService { get; }
     }
 }

@@ -1,25 +1,27 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PasswordManager.Entities.Shared;
 using Solvintech.Services.Contracts;
 
 namespace PasswordManager.Presentation.Controllers
 {
     [ApiController, Produces("application/json"), Route("api/[controller]")]
     public class QuotationController : ControllerBase
-
     {
-        
+        private readonly IServiceManager _service;
+        public QuotationController(IServiceManager service) => _service = service;
+
 
         [HttpGet("{day}-{month}-{year}")]
         [Authorize]
-        public async Task<IActionResult> GetJsonQuotations(int day, int month, int year)
+        public async Task<IActionResult> GetJsonQuotations(string day, string month, string year)
         {
-            return Ok(new { day = day, month = month, year = year });
+            var date = new StringDate(day, month, year);
+            var valutes = await _service.QuotationService.GetJsonQuotatiation(date);
+            if (valutes!=null) return Ok(valutes);
+            return NotFound();
         }
     }
 }

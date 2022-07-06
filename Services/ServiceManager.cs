@@ -11,14 +11,13 @@ namespace Solvintech.Services
 {
     public sealed class ServiceManager : IServiceManager
     {
-        // private readonly Lazy<UserService> _userService;
         private readonly Lazy<AuthenticationService> _authenticationService;
+        private readonly Lazy<QuotationProxyService> _quotationProxyService;
 
         public ServiceManager(IRepositoryManager repositoryManager, IMapper mapper, IConfiguration configuration,
             IOptions<JwtConfiguration> jwtConfiguration)
         {
-            // _userService = new Lazy<UserService>(() => new
-            //     UserService(repositoryManager));
+            _quotationProxyService = new Lazy<QuotationProxyService>(()=>new QuotationProxyService());
 
             _authenticationService = new Lazy<AuthenticationService>(() =>
                 new AuthenticationService(repositoryManager, mapper, configuration, jwtConfiguration));
@@ -27,5 +26,6 @@ namespace Solvintech.Services
 
         // public IUserService UserService => _userService.Value;
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
+        public IQuotationProxyService QuotationService => _quotationProxyService.Value;
     }
 }
