@@ -1,9 +1,7 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PasswordManager.Entities.Shared;
-using Solvintech.Entities;
 using Solvintech.Services.Contracts;
 
 namespace PasswordManager.Presentation.Controllers

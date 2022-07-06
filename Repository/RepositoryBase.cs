@@ -30,5 +30,7 @@ namespace Solvintech.Repository//todo rename
         public async Task CreateAsync(T entity) => await RepositoryContext.Set<T>().AddAsync(entity);
         public void Update(T entity) => RepositoryContext.Set<T>().Update(entity);
         public void Delete(T entity) => RepositoryContext.Set<T>().Remove(entity);
+        
+        
     }
 }

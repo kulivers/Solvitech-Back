@@ -43,40 +43,39 @@ namespace Solvintech.Services
         {
             var user = new User()
             {
-                Username = userDto.Username,
                 Email = userDto.Email,
-                Token = GenerateToken(userDto.Username, userDto.Email),
+                Token = GenerateToken(userDto.Email),
                 PasswordHash = ComputeSha256Hash(userDto.Password)
             };
             try
             {
-                await _repository.Users.CreateUser(user);
+                //try catch to send my exception except internal
+                await _repository.Users.CreateUserAsync(user);
             }
             catch (SqlException)
             {
-                throw new RegistrationNotSuccess("User with same username already exists");
+                throw new RegistrationNotSuccess("User with same email already exists");
             }
             catch (DbUpdateException)
             {
-                throw new RegistrationNotSuccess("User with same username already exists");
+                throw new RegistrationNotSuccess("User with same email already exists");
             }
         }
 
-        public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
+
+        public async Task<string> GenerateNewUserToken(UserForAuthenticationDto userDto)
         {
-            // _user = await _userManager.FindByNameAsync(userForAuth.UserName);
-            // var result = _user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password);
-            // if (!result)
-            //     _logger.LogWarn(
-            //         $"{nameof(ValidateUser)}: Authentication failed. Wrong username or password. USER_ID={(_user?.Id != null ? _user.Id : "null")}");
-            // return result;
-            return true;
+            var newToken = GenerateToken(userDto.Email);
+            await _repository.Users.UpdateUserTokenAsync(userDto.Email, ComputeSha256Hash(userDto.Password),
+                newToken);
+            return newToken;
         }
 
-        public async Task<string> GetToken()
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<string> GetUserTokenAsync(UserForAuthenticationDto userDto) =>
+            await GetUserTokenAsync(userDto.Email, userDto.Password);
+
+        public async Task<string> GetUserTokenAsync(string email, string password) =>
+            await _repository.Users.GetUserTokenAsync(email, ComputeSha256Hash(password));
 
         private string ComputeSha256Hash(string rawData)
         {
@@ -91,11 +90,10 @@ namespace Solvintech.Services
             return builder.ToString();
         }
 
-
-        private string GenerateToken(string userName, string email)
+        private string GenerateToken(string email)
         {
             var signingCredentials = GetSigningCredentials();
-            var claims = GetClaims(userName, email);
+            var claims = GetClaims(email);
             var tokenOptions = GenerateTokenOptions(signingCredentials, claims);
             var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return accessToken;
@@ -109,14 +107,11 @@ namespace Solvintech.Services
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private IEnumerable<Claim> GetClaims(string userName, string email)
-        {
-            return new Claim[]
+        private IEnumerable<Claim> GetClaims(string email) =>
+            new Claim[]
             {
-                new(ClaimTypes.Name, userName),
                 new(ClaimTypes.Email, email)
             };
-        }
 
         //creates an object of the JwtSecurityToken
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
@@ -127,6 +122,7 @@ namespace Solvintech.Services
                 _jwtConfiguration.ValidIssuer,
                 _jwtConfiguration.ValidAudience,
                 claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
                 signingCredentials: signingCredentials
             );
             return tokenOptions;

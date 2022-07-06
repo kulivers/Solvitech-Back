@@ -67,11 +67,11 @@ namespace SolvintechTestProject.Extentions
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         //• The issuer must be actual server that created the token 
-                        ValidateIssuer = true,
-                        //• The receiver must be a valid recipient
                         ValidateAudience = true,
+                        ValidateIssuer = true,
+                        ValidateLifetime = true,
+                        //• The receiver must be a valid recipient
                         //The token can be expired
-                        ValidateLifetime = false,
                         //The signing key must be valid and trusted by the server
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = jwtConfiguration.ValidIssuer,

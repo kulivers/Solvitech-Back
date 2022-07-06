@@ -53,6 +53,7 @@ namespace SolvintechTestProject.Extentions
             return contextFeature.Error switch
             {
                 RegistrationNotSuccess => StatusCodes.Status409Conflict,
+                NotFoundException => StatusCodes.Status400BadRequest,
                 LoginNotSuccess => StatusCodes.Status401Unauthorized,
                 MultipleErrorsException => StatusCodes.Status409Conflict,
                 _ => StatusCodes.Status500InternalServerError

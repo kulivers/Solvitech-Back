@@ -18,7 +18,7 @@ namespace Solvintech.Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<User>().HasIndex(e => e.Username).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(e => e.Email).IsUnique();
         }
     }
 }
